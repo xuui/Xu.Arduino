@@ -167,7 +167,7 @@ void keypadEvent(KeypadEvent key){
         break;
         case '#':
           inputKey=11;
-          countDown=1;
+          countDown=3;
           //digitalWrite(ledPin,!digitalRead(ledPin));
           //ledPin_state = digitalRead(ledPin);        // Remember LED state, lit or unlit.
         break;
