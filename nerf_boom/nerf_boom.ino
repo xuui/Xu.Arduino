@@ -1,0 +1,205 @@
+#include <Arduino.h>
+#include <U8g2lib.h>
+#include <Keypad.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // All Boards without Reset of the Display
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=SDA/ A4, /* data=SCL/ A5, /* reset=*/ U8X8_PIN_NONE);   // All Boards without Reset of the Display
+
+/* Keypad 4x4 */
+const byte ROWS = 4; //four rows
+const byte COLS = 4; //four columns
+char hexaKeys[ROWS][COLS] = {
+  {'1', '2', '3', 'A'},
+  {'4', '5', '6', 'B'},
+  {'7', '8', '9', 'C'},
+  {'*', '0', '#', 'D'}
+};
+byte rowPins[ROWS] = {5, 6, 7, 8}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {9, 10, 11, 12}; //connect to the column pinouts of the keypad
+/** // Keypad 3x4 *//*
+  const byte ROWS=4; //four rows
+  const byte COLS=3; //four columns
+  char hexaKeys[ROWS][COLS]={
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+  };
+  byte rowPins[ROWS]={5,6,7,8}; //connect to the row pinouts of the keypad
+  byte colPins[COLS]={9,10,11}; //connect to the column pinouts of the keypad
+*/
+
+//initialize an instance of class NewKeypad
+Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+
+
+/**********************************************************/
+char keyInput = "";
+int passState = 0;
+int countDown = 90; // 倒计时时间
+int loopState = 1;
+int loopTime = 25;
+
+int randPassKey; // 随机密匙
+int inputKey=16;
+/**********************************************************/
+
+void oledShow() {
+  //u8g2.setDrawColor(1);
+  u8g2.setFont(u8g2_font_profont22_tf);
+  u8g2.setCursor(1, 15);
+  u8g2.print("Time:");
+  u8g2.print(countDown);
+    
+  //u8g2.setDrawColor(1);
+  //u8g2.drawBox(0,16,128,64);
+  //u8g2.setDrawColor(0);
+  u8g2.setFont(u8g2_font_logisoso38_tf );
+  u8g2.setCursor(1, 62);
+  //u8g2.print(text);
+  u8g2.print(randPassKey);
+  u8g2.print('-');
+  if(inputKey==randPassKey){
+    u8g2.print(inputKey);
+  }
+  
+  if (passState != 0) {
+    u8g2.setFont(u8g2_font_unifont_t_symbols);
+    u8g2.drawGlyph(100, 50, 0x2713);
+  } else {
+    u8g2.setFont(u8g2_font_unifont_t_symbols);
+    u8g2.drawGlyph(100, 52, 0x2717);
+  }
+}
+
+/**/
+void setup() {
+  Serial.begin(9600);
+  randomSeed(analogRead(0));
+  
+  keypad.addEventListener(keypadEvent);  // Add an event listener for this keypad
+  u8g2.begin();
+  //u8g2.setFont(u8g2_font_ncenB14_tr);
+  
+  Serial.println ("randKey:");
+  Serial.println (randPassKey);
+  //analogWrite(3, 255);// +
+  //pinMode(4, OUTPUT);// -
+
+  randPassKey = random(0,9);
+}
+
+void loop() {
+  u8g2.firstPage();do{
+  oledShow();
+  }while(u8g2.nextPage());
+
+  char key=keypad.getKey();
+  if(key){Serial.println(key);}
+  
+  //ledLoopTime();
+  if(loopState==1){
+    if(countDown!=0){
+      if(loopTime!=0){
+        loopTime--;
+      }else{
+        loopTime=25;
+        countDown--;
+      }
+    }
+  }
+
+  
+  if(inputKey==randPassKey){
+    loopState=0;
+  }else{
+    loopState=1;
+  }
+  
+  delay(10);
+}
+
+void keypadEvent(KeypadEvent key) {
+  Serial.println(key);
+  switch (keypad.getState()) {
+    case PRESSED: // 按下
+      switch(key){
+        case '0':
+          inputKey=0;
+        break;
+        case '1':
+          inputKey=1;
+        break;
+        case '2':
+          inputKey=2;
+        break;
+        case '3':
+          inputKey=3;
+        break;
+        case '4':
+          inputKey=4;
+        break;
+        case '5':
+          inputKey=5;
+        break;
+        case '6':
+          inputKey=6;
+        break;
+        case '7':
+          inputKey=7;
+        break;
+        case '8':
+          inputKey=8;
+        break;
+        case '9':
+          inputKey=9;
+        break;
+        case '*':
+          inputKey=10;
+          countDown=240;
+        break;
+        case '#':
+          inputKey=11;
+          countDown=1;
+          //digitalWrite(ledPin,!digitalRead(ledPin));
+          //ledPin_state = digitalRead(ledPin);        // Remember LED state, lit or unlit.
+        break;
+        case 'A':
+          inputKey=12;
+          countDown=1000;
+        break;
+        case 'B':
+          inputKey=13;
+          countDown=2000;
+        break;
+        case 'C':
+          inputKey=14;
+          countDown==3000;
+        break;
+        case 'D':
+          inputKey=15;
+          countDown==4000;
+        break;
+      }
+      break;
+    case RELEASED: // 放开
+      if (key == '*') {
+        //digitalWrite(ledPin,ledPin_state);    // Restore LED state from before it started blinking.
+        //blink = false;
+      }
+      break;
+    case HOLD: // 按住
+      if (key == '*') {
+        //blink = true;    // Blink the LED when holding the * key.
+      }
+      break;
+  }
+}
+
