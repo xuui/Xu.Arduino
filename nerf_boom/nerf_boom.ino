@@ -39,13 +39,12 @@ byte colPins[COLS] = {9, 10, 11, 12}; //connect to the column pinouts of the key
 //initialize an instance of class NewKeypad
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-
 /**********************************************************/
 char keyInput = "";
 int passState = 0;
 int countDown = 90; // 倒计时时间
 int loopState = 1;
-int loopTime = 25;
+int loopTime = 17;
 
 int randPassKey; // 随机密匙
 int inputKey=16;
@@ -55,27 +54,26 @@ void oledShow() {
   //u8g2.setDrawColor(1);
   u8g2.setFont(u8g2_font_profont22_tf);
   u8g2.setCursor(1, 15);
-  u8g2.print("Time:");
-  u8g2.print(countDown);
+  u8g2.print("Pass:");
+  u8g2.print(randPassKey);
+  u8g2.print(":");
+  if(inputKey==randPassKey){
+    u8g2.print(inputKey);
+  }
     
   //u8g2.setDrawColor(1);
   //u8g2.drawBox(0,16,128,64);
   //u8g2.setDrawColor(0);
   u8g2.setFont(u8g2_font_logisoso38_tf );
   u8g2.setCursor(1, 62);
-  //u8g2.print(text);
-  u8g2.print(randPassKey);
-  u8g2.print('-');
-  if(inputKey==randPassKey){
-    u8g2.print(inputKey);
-  }
+  u8g2.print(countDown);
   
-  if (passState != 0) {
+  if (inputKey==randPassKey) {
     u8g2.setFont(u8g2_font_unifont_t_symbols);
-    u8g2.drawGlyph(100, 50, 0x2713);
+    u8g2.drawGlyph(100, 12, 0x2713);
   } else {
     u8g2.setFont(u8g2_font_unifont_t_symbols);
-    u8g2.drawGlyph(100, 52, 0x2717);
+    u8g2.drawGlyph(100, 12, 0x2717);
   }
 }
 
@@ -88,12 +86,13 @@ void setup() {
   u8g2.begin();
   //u8g2.setFont(u8g2_font_ncenB14_tr);
   
-  Serial.println ("randKey:");
-  Serial.println (randPassKey);
   //analogWrite(3, 255);// +
   //pinMode(4, OUTPUT);// -
 
   randPassKey = random(0,9);
+  
+  Serial.print("PassKey: ");
+  Serial.println(randPassKey);
 }
 
 void loop() {
@@ -110,12 +109,12 @@ void loop() {
       if(loopTime!=0){
         loopTime--;
       }else{
-        loopTime=25;
+        loopTime=16;
         countDown--;
+        //Serial.println(millis());
       }
     }
   }
-
   
   if(inputKey==randPassKey){
     loopState=0;
@@ -123,10 +122,11 @@ void loop() {
     loopState=1;
   }
   
-  delay(10);
+  //delay(1);
 }
 
-void keypadEvent(KeypadEvent key) {
+void keypadEvent(KeypadEvent key){
+  Serial.print("Pressed Keypad: ");
   Serial.println(key);
   switch (keypad.getState()) {
     case PRESSED: // 按下
