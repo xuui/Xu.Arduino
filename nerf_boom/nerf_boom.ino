@@ -40,9 +40,12 @@ byte colPins[COLS] = {9, 10, 11, 12}; //connect to the column pinouts of the key
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 /**********************************************************/
+const int ledPin = 3;
+const int biPin = 4;
+
 char keyInput = "";
 int passState = 0;
-int countDown = 90; // 倒计时时间
+int countDown = 60; // 倒计时时间
 int loopState = 1;
 int loopTime = 17;
 
@@ -71,12 +74,25 @@ void oledShow() {
   if (inputKey==randPassKey) {
     u8g2.setFont(u8g2_font_unifont_t_symbols);
     u8g2.drawGlyph(100, 12, 0x2713);
+    //Alarm(1);
+    digitalWrite(ledPin,HIGH);
   } else {
     u8g2.setFont(u8g2_font_unifont_t_symbols);
     u8g2.drawGlyph(100, 12, 0x2717);
+    //Alarm();
+    digitalWrite(ledPin,LOW);
   }
 }
-
+void Alarm(int ia=0){ //蜂鸣器发出警报
+  if(ia==1){
+    for(int i=0;i<10;i++){
+      digitalWrite(biPin,HIGH); //发声音
+      delay(2);
+      digitalWrite(biPin,LOW); //不发声音
+      delay(2); //修改延时时间，改变发声频率
+    }
+  }
+}
 /**/
 void setup() {
   Serial.begin(9600);
@@ -87,8 +103,10 @@ void setup() {
   //u8g2.setFont(u8g2_font_ncenB14_tr);
   
   //analogWrite(3, 255);// +
-  //pinMode(4, OUTPUT);// -
-
+  //pinMode(4, OUTPUT);// - INPUT
+  pinMode(biPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  
   randPassKey = random(0,9);
   
   Serial.print("PassKey: ");
@@ -105,7 +123,7 @@ void loop() {
   
   //ledLoopTime();
   if(loopState==1){
-    if(countDown!=0){
+    if(countDown!=0){ // 倒计时是否为0
       if(loopTime!=0){
         loopTime--;
       }else{
@@ -113,6 +131,9 @@ void loop() {
         countDown--;
         //Serial.println(millis());
       }
+      digitalWrite(biPin,LOW);
+    }else{
+      digitalWrite(biPin,HIGH);
     }
   }
   
@@ -122,7 +143,7 @@ void loop() {
     loopState=1;
   }
   
-  //delay(1);
+  //delay(10);
 }
 
 void keypadEvent(KeypadEvent key){
@@ -163,7 +184,7 @@ void keypadEvent(KeypadEvent key){
         break;
         case '*':
           inputKey=10;
-          countDown=240;
+          countDown=30;
         break;
         case '#':
           inputKey=11;
