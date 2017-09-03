@@ -55,21 +55,14 @@ void drawDiscL() {
 
 void nerf_Aim(void) {
   //u8g.drawLine(x1,y1, x2,y2);
-  /*
-    //u8g.setDrawColor(1);
-    //u8g.drawBox(0,0,128,64);
-    u8g.drawFrame(0,0,127,63);
-    u8g.drawFrame(0,0,127,31);
-    u8g.drawFrame(0,0,63,63);
-    u8g.setDrawColor(2);
-    u8g.drawBox(0,0,127,63);
-    u8g.setDrawColor(1);
-    u8g.drawLine(0,31, 126,31);
-    u8g.drawLine(63,0, 63,62);
-    u8g.drawLine(32,0, 94,62);
-    u8g.drawLine(32,62, 94,0);
-  */
-  /**/
+  /**/ // aim test Start.
+  
+  u8g.drawDisc(71, 31, 2, U8G2_DRAW_ALL);
+  u8g.drawLine(62, 31, 56, 31);
+  u8g.drawLine(80, 31, 86, 31);
+  
+  //*/ // aim test End.
+  /* /
   switch (draw_state) {
     case 0: CrossA(); break;
     case 1: CrossB(); break;
@@ -82,6 +75,7 @@ void nerf_Aim(void) {
       //case 8: lineAim(); break;
       //default: CrossA();
   }
+  /**/
 }
 
 void setup(void) {
@@ -106,13 +100,13 @@ void loop(void) {
     if (reading != btnState) {
       btnState = reading;
       if (btnState == HIGH) {
-        draw_state++;
+        //draw_state++;
       }
     }
   }
   lastBtnState = reading;
   if (draw_state >= 7) {
-    draw_state = 0;
+    //draw_state = 0;
   }
   /**
     if (reading == HIGH) {
