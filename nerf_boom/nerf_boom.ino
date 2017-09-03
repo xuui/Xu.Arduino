@@ -49,165 +49,154 @@ int countDown = 60; // 倒计时时间
 int loopState = 1;
 int loopTime = 17;
 
+int KeyLockED = 0; // 键盘锁定
 int randPassKey; // 随机密匙
-int inputKey=16;
+int inputKey = 16;
 /**********************************************************/
 
 void oledShow() {
   //u8g2.setDrawColor(1);
   u8g2.setFont(u8g2_font_profont22_tf);
   u8g2.setCursor(1, 15);
-  u8g2.print("Pass:");
-  u8g2.print(randPassKey);
-  u8g2.print(":");
-  if(inputKey==randPassKey){
-    u8g2.print(inputKey);
+  //u8g2.print("Pass:");
+  //u8g2.print(randPassKey);
+  //u8g2.print(":");
+  if (inputKey == randPassKey) {
+    //u8g2.print(inputKey);
+    u8g2.print("Unlocked!");
+    KeyLockED = 1;
   }
-    
+
   //u8g2.setDrawColor(1);
   //u8g2.drawBox(0,16,128,64);
   //u8g2.setDrawColor(0);
   u8g2.setFont(u8g2_font_logisoso38_tf );
   u8g2.setCursor(1, 62);
   u8g2.print(countDown);
-  
-  if (inputKey==randPassKey) {
-    u8g2.setFont(u8g2_font_unifont_t_symbols);
-    u8g2.drawGlyph(100, 12, 0x2713);
-    //Alarm(1);
-    digitalWrite(ledPin,HIGH);
+
+  if (inputKey == randPassKey) {
+    //u8g2.setFont(u8g2_font_unifont_t_symbols);
+    //u8g2.drawGlyph(100, 12, 0x2713);
+    digitalWrite(ledPin, HIGH);
   } else {
-    u8g2.setFont(u8g2_font_unifont_t_symbols);
-    u8g2.drawGlyph(100, 12, 0x2717);
-    //Alarm();
-    digitalWrite(ledPin,LOW);
-  }
-}
-void Alarm(int ia=0){ //蜂鸣器发出警报
-  if(ia==1){
-    for(int i=0;i<10;i++){
-      digitalWrite(biPin,HIGH); //发声音
-      delay(2);
-      digitalWrite(biPin,LOW); //不发声音
-      delay(2); //修改延时时间，改变发声频率
-    }
+    //u8g2.setFont(u8g2_font_unifont_t_symbols);
+    //u8g2.drawGlyph(100, 12, 0x2717);
+    digitalWrite(ledPin, LOW);
   }
 }
 /**/
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(0));
-  
+
   keypad.addEventListener(keypadEvent);  // Add an event listener for this keypad
   u8g2.begin();
   //u8g2.setFont(u8g2_font_ncenB14_tr);
-  
+
   //analogWrite(3, 255);// +
   //pinMode(4, OUTPUT);// - INPUT
   pinMode(biPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
-  
-  randPassKey = random(0,9);
-  
+
+  randPassKey = random(0, 15);
+
   Serial.print("PassKey: ");
   Serial.println(randPassKey);
 }
 
 void loop() {
-  u8g2.firstPage();do{
-  oledShow();
-  }while(u8g2.nextPage());
+  u8g2.firstPage(); do {
+    oledShow();
+  } while (u8g2.nextPage());
 
-  char key=keypad.getKey();
-  if(key){Serial.println(key);}
-  
+  char key = keypad.getKey();
+  //if(key){Serial.println(key);}
+
   //ledLoopTime();
-  if(loopState==1){
-    if(countDown!=0){ // 倒计时是否为0
-      if(loopTime!=0){
+  if (loopState == 1) {
+    if (countDown != 0) { // 倒计时是否为0
+      if (loopTime != 0) {
         loopTime--;
-      }else{
-        loopTime=16;
+      } else {
+        loopTime = 16;
         countDown--;
         //Serial.println(millis());
       }
-      digitalWrite(biPin,LOW);
-    }else{
-      digitalWrite(biPin,HIGH);
+      digitalWrite(biPin, LOW);
+    } else {
+      digitalWrite(biPin, HIGH);
+      KeyLockED = 1;
     }
   }
-  
-  if(inputKey==randPassKey){
-    loopState=0;
-  }else{
-    loopState=1;
+
+  if (inputKey == randPassKey) {
+    loopState = 0;
+  } else {
+    loopState = 1;
   }
-  
+
   //delay(10);
 }
 
-void keypadEvent(KeypadEvent key){
-  Serial.print("Pressed Keypad: ");
-  Serial.println(key);
+void keypadEvent(KeypadEvent key) {
+  //Serial.print("Pressed Keypad: ");
+  //Serial.println(key);
   switch (keypad.getState()) {
     case PRESSED: // 按下
-      switch(key){
-        case '0':
-          inputKey=0;
-        break;
-        case '1':
-          inputKey=1;
-        break;
-        case '2':
-          inputKey=2;
-        break;
-        case '3':
-          inputKey=3;
-        break;
-        case '4':
-          inputKey=4;
-        break;
-        case '5':
-          inputKey=5;
-        break;
-        case '6':
-          inputKey=6;
-        break;
-        case '7':
-          inputKey=7;
-        break;
-        case '8':
-          inputKey=8;
-        break;
-        case '9':
-          inputKey=9;
-        break;
-        case '*':
-          inputKey=10;
-          countDown=30;
-        break;
-        case '#':
-          inputKey=11;
-          countDown=3;
-          //digitalWrite(ledPin,!digitalRead(ledPin));
-          //ledPin_state = digitalRead(ledPin);        // Remember LED state, lit or unlit.
-        break;
-        case 'A':
-          inputKey=12;
-          countDown=1000;
-        break;
-        case 'B':
-          inputKey=13;
-          countDown=2000;
-        break;
-        case 'C':
-          inputKey=14;
-          countDown==3000;
-        break;
-        case 'D':
-          inputKey=15;
-          countDown==4000;
-        break;
+      if (KeyLockED == 0) {
+        switch (key) {
+          case '0':
+            inputKey = 0;
+            break;
+          case '1':
+            inputKey = 1;
+            break;
+          case '2':
+            inputKey = 2;
+            break;
+          case '3':
+            inputKey = 3;
+            break;
+          case '4':
+            inputKey = 4;
+            break;
+          case '5':
+            inputKey = 5;
+            break;
+          case '6':
+            inputKey = 6;
+            break;
+          case '7':
+            inputKey = 7;
+            break;
+          case '8':
+            inputKey = 8;
+            break;
+          case '9':
+            inputKey = 9;
+            break;
+          case '*':
+            inputKey = 10;
+            break;
+          case '#':
+            inputKey = 11;
+            countDown = 3;
+            //digitalWrite(ledPin,!digitalRead(ledPin));
+            //ledPin_state=digitalRead(ledPin);        // Remember LED state, lit or unlit.
+            break;
+          case 'A':
+            inputKey = 12;
+            break;
+          case 'B':
+            inputKey = 13;
+            break;
+          case 'C':
+            inputKey = 14;
+            break;
+          case 'D':
+            inputKey = 15;
+            break;
+        }
       }
       break;
     case RELEASED: // 放开
@@ -217,8 +206,15 @@ void keypadEvent(KeypadEvent key){
       }
       break;
     case HOLD: // 按住
-      if (key == '*') {
-        //blink = true;    // Blink the LED when holding the * key.
+      switch (key) {
+        case 'D':
+          KeyLockED = 0;
+          break;
+        case 'B':
+          //if(KeyLockED==0)
+          countDown = 60;
+          //loopState=1;
+          break;
       }
       break;
   }
