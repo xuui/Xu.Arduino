@@ -1,5 +1,5 @@
 int Sensor_pin = 13;
-int Led_pin = 3;
+int Led_pin = 4; //3
 
 void setup() {
   Serial.begin(9600);

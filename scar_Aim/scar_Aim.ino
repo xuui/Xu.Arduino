@@ -82,6 +82,8 @@ void setup(void) {
   //Serial.begin(9600);
   randomSeed(analogRead(0));
   pinMode(btnPin, INPUT); // INPUT or OUTPUT or INPUT_PULLUP
+  pinMode(7, OUTPUT);
+  
   u8g.begin();
   draw_state = random(0, 6);
 }
