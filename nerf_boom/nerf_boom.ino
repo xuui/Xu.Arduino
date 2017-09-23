@@ -51,6 +51,7 @@ int loopTime = 17;
 
 int KeyLockED = 0; // 键盘锁定
 int randPassKey; // 随机密匙
+int randEggKey;// Egg
 int inputKey = 16;
 /**********************************************************/
 
@@ -61,10 +62,18 @@ void oledShow() {
   //u8g2.print("Pass:");
   //u8g2.print(randPassKey);
   //u8g2.print(":");
-  if (inputKey == randPassKey) {
+  if(inputKey == randPassKey){
     //u8g2.print(inputKey);
     u8g2.print("Unlocked!");
     KeyLockED = 1;
+    digitalWrite(ledPin, HIGH);
+  }else{
+    digitalWrite(ledPin, LOW);
+  }
+  if(inputKey == randEggKey){
+    countDown = 3;
+    //digitalWrite(ledPin,!digitalRead(ledPin));
+    //ledPin_state=digitalRead(ledPin);        // Remember LED state, lit or unlit.
   }
 
   //u8g2.setDrawColor(1);
@@ -73,16 +82,6 @@ void oledShow() {
   u8g2.setFont(u8g2_font_logisoso38_tf );
   u8g2.setCursor(1, 62);
   u8g2.print(countDown);
-
-  if (inputKey == randPassKey) {
-    //u8g2.setFont(u8g2_font_unifont_t_symbols);
-    //u8g2.drawGlyph(100, 12, 0x2713);
-    digitalWrite(ledPin, HIGH);
-  } else {
-    //u8g2.setFont(u8g2_font_unifont_t_symbols);
-    //u8g2.drawGlyph(100, 12, 0x2717);
-    digitalWrite(ledPin, LOW);
-  }
 }
 /**/
 void setup() {
@@ -99,9 +98,12 @@ void setup() {
   pinMode(ledPin, OUTPUT);
 
   randPassKey = random(0, 15);
+  randEggKey = random(0, 15);
 
   Serial.print("PassKey: ");
   Serial.println(randPassKey);
+  Serial.print("Egg: ");
+  Serial.println(randEggKey);
 }
 
 void loop() {
@@ -117,10 +119,12 @@ void loop() {
     if (countDown != 0) { // 倒计时是否为0
       if (loopTime != 0) {
         loopTime--;
+        digitalWrite(biPin, LOW);
       } else {
         loopTime = 16;
         countDown--;
         //Serial.println(millis());
+        digitalWrite(biPin, HIGH);
       }
       digitalWrite(biPin, LOW);
     } else {
@@ -180,9 +184,6 @@ void keypadEvent(KeypadEvent key) {
             break;
           case '#':
             inputKey = 11;
-            countDown = 3;
-            //digitalWrite(ledPin,!digitalRead(ledPin));
-            //ledPin_state=digitalRead(ledPin);        // Remember LED state, lit or unlit.
             break;
           case 'A':
             inputKey = 12;
